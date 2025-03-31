@@ -1,0 +1,60 @@
+{
+  "name": "stellarid",
+  "version": "1.0.0",
+  "description": "Decentralized Identity for Financial Inclusion on Stellar Blockchain",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "server": "nodemon backend/src/server.js",
+    "client": "cd frontend && npm start",
+    "client-install": "cd frontend && npm install",
+    "server-install": "npm install",
+    "install-all": "npm run server-install && npm run client-install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "cd frontend && npm install && npm run build",
+   "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [    
+  "stellar",
+  "blockchain",
+  "identity",
+  "financial-inclusion",
+  "decentralized"],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "axios": "^1.8.4",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1",
+    "morgan": "^1.10.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.4.1",
+    "stellar-sdk": "^13.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "babel-loader": "^10.0.0",
+    "concurrently": "^9.1.2",
+    "css-loader": "^7.1.2",
+    "nodemon": "^3.1.9",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
+  },
+  "engines": {
+    "node": "14.x"
+  }
+}
