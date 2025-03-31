@@ -1,0 +1,60 @@
+{
+  "name": "stellarid",
+  "version": "1.0.0",
+  "description": "A decentralized identity solution built on the Stellar blockchain for financial inclusion",
+  "main": "src/api/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stellarid/stellarid.git"
+  },
+  "scripts": {
+    "start": "node src/api/index.js",
+    "dev": "nodemon src/api/index.js",
+    "deploy:testnet": "node deploy/index.js",
+    "test": "mocha tests/**/*.test.js",
+    "test:api": "mocha tests/api.test.js",
+    "test:core": "mocha tests/core.test.js",
+    "test:integration": "mocha tests/integration.test.js",
+    "mobile:start": "cd src/mobile && expo start",
+    "mobile:android": "cd src/mobile && expo start --android",
+    "mobile:ios": "cd src/mobile && expo start --ios",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write 'src/**/*.js'",
+    "docs": "jsdoc -c jsdoc.json"
+  },
+  "keywords": [
+    "stellar",
+    "blockchain",
+    "identity",
+    "decentralized",
+    "financial-inclusion"
+  ],
+  "author": "StellarID Team <team@stellarid.io>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "ipfs-http-client": "^52.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "stellar-sdk": "^10.0.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.2.0",
+    "jsdoc": "^3.6.7",
+    "mocha": "^9.1.3",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.4.1",
+    "sinon": "^12.0.1",
+    "supertest": "^6.1.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
