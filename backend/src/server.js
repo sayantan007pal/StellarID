@@ -6,7 +6,11 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const path = require('path');
+
 require('dotenv').config();
+
+// Import config file
+const config = require('./config'); // Add this line
 
 // Import routes
 const userRoutes = require('./routes/user.routes');
@@ -20,7 +24,11 @@ const app = express();
 
 // Middleware
 app.use(helmet()); // Security headers
-app.use(cors());   // Enable CORS
+app.use(cors({
+    origin: config.corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));  // Enable CORS
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev')); // Logging
@@ -61,7 +69,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

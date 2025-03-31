@@ -125,3 +125,54 @@ exports.login = async (req, res) => {
     });
   }
 };
+
+// New functions to satisfy your routes
+
+exports.getProfile = async (req, res) => {
+  try {
+    // Assuming you have a user id attached to req (from authMiddleware)
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select('-password -stellarSecretKey');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ success: false, message: 'Error retrieving profile' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    // Update allowed fields only (for security reasons)
+    const updates = req.body;
+    const user = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password -stellarSecretKey');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ success: false, message: 'Error updating profile' });
+  }
+};
+
+exports.getStellarAccount = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    // Return only the stellar public key (and any other non-sensitive info)
+    res.status(200).json({
+      success: true,
+      data: { stellarPublicKey: user.stellarPublicKey }
+    });
+  } catch (error) {
+    console.error('Get stellar account error:', error);
+    res.status(500).json({ success: false, message: 'Error retrieving stellar account' });
+  }
+};

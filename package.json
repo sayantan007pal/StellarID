@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "backend/src/server.js",
-  "scripts": {
-    "start": "node backend/src/server.js",
-    "server": "nodemon backend/src/server.js",
-    "client": "cd frontend && npm start",
-    "client-install": "cd frontend && npm install",
-    "server-install": "npm install",
-    "install-all": "npm run server-install && npm run client-install",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "cd frontend && npm install && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+ "scripts": {
+  "start": "node backend/src/server.js",
+  "server": "nodemon backend/src/server.js",
+  "client": "cd frontend && npm start",
+  "client-install": "cd frontend && npm install",
+  "server-install": "npm install",
+  "install-all": "npm run server-install && npm run client-install",
+  "dev": "concurrently \"npm run server\" \"npm run client\"",
+  "build": "cd frontend && npm install && npm run build"
+},
   "keywords": [
     "stellar",
     "blockchain",

@@ -1,6 +1,7 @@
 // frontend/src/config.js
 // Base URL for API requests
-export const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// frontend/src/config.js
+export const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
 // Stellar network configuration
 export const STELLAR_NETWORK = process.env.REACT_APP_STELLAR_NETWORK || 'testnet';

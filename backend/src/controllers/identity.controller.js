@@ -11,7 +11,6 @@ exports.createIdentity = async (req, res) => {
     
     // Check if user already has an identity
     const existingIdentity = await Identity.findOne({ user: userId });
-    
     if (existingIdentity) {
       return res.status(400).json({
         success: false,
@@ -66,6 +65,30 @@ exports.createIdentity = async (req, res) => {
   }
 };
 
+exports.getMyIdentity = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const identity = await Identity.findOne({ user: userId });
+    if (!identity) {
+      return res.status(404).json({
+        success: false,
+        message: 'Identity not found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: identity
+    });
+  } catch (error) {
+    console.error('Get identity error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving identity',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 exports.updateIdentity = async (req, res) => {
   try {
     const { personalInfo, contactInfo } = req.body;
@@ -113,6 +136,90 @@ exports.updateIdentity = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error updating identity',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+exports.uploadDocument = async (req, res) => {
+  try {
+    // Placeholder logic: implement your file upload logic here.
+    // For example, you might handle file uploads using multer.
+    res.status(200).json({
+      success: true,
+      message: 'Document uploaded successfully (placeholder)'
+    });
+  } catch (error) {
+    console.error('Upload document error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error uploading document',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+exports.getVerificationStatus = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const identity = await Identity.findOne({ user: userId });
+    if (!identity) {
+      return res.status(404).json({
+        success: false,
+        message: 'Identity not found'
+      });
+    }
+    // Placeholder: You can customize this logic as needed.
+    res.status(200).json({
+      success: true,
+      data: {
+        verificationStatus: identity.verificationStatus || 'pending'
+      }
+    });
+  } catch (error) {
+    console.error('Get verification status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error retrieving verification status',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+exports.verifyChallenge = async (req, res) => {
+  try {
+    const { challengeResponse } = req.body;
+    const userId = req.user.userId;
+    
+    const identity = await Identity.findOne({ user: userId });
+    if (!identity) {
+      return res.status(404).json({
+        success: false,
+        message: 'Identity not found'
+      });
+    }
+    
+    // Placeholder verification logic: compare the provided response with the stored challenge.
+    if (challengeResponse === identity.challenge.value) {
+      // Mark identity as verified, update tier, etc.
+      identity.verificationStatus = 'verified';
+      await identity.save();
+      
+      res.status(200).json({
+        success: true,
+        message: 'Challenge verified successfully'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid challenge response'
+      });
+    }
+  } catch (error) {
+    console.error('Verify challenge error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error verifying challenge',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

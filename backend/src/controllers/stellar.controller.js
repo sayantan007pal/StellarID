@@ -143,32 +143,28 @@ exports.createAsset = async (req, res) => {
       });
     }
     
-    // Load issuer account
-    const issuerAccount = await server.loadAccount(user.stellarPublicKey);
-    
-    // Create a new asset with the user as the issuer
-    const asset = new StellarSdk.Asset(assetCode, user.stellarPublicKey);
-    
-    // Build a transaction that will set various options on the issuing account
-    const transaction = new StellarSdk.TransactionBuilder(issuerAccount, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase
-    })
-      .addOperation(StellarSdk.Operation.setOptions({
-        homeDomain: 'stellarid.example.com', // Would be your actual domain in production
-        // Set flags for the asset issuer account if needed
-        // For example, to require authorization:
-        setFlags: StellarSdk.AuthRequiredFlag | StellarSdk.AuthRevocableFlag
-      }))
-      .setTimeout(30)
-      .addMemo(memo ? StellarSdk.Memo.text(memo) : StellarSdk.Memo.text('StellarID Asset Creation'));
-    
-    // Sign and submit the transaction
-    const sourceKeypair = StellarSdk.Keypair.fromSecret(user.stellarSecretKey);
-    const builtTx = transaction.build();
-    builtTx.sign(sourceKeypair);
-    
-    const result = await server.submitTransaction(builtTx);
+    // Load issuer account// Load the issuer account
+const issuerAccount = await server.loadAccount(issuerPublicKey);
+
+// Build a transaction
+const transaction = new StellarSdk.TransactionBuilder(issuerAccount, {
+  fee: StellarSdk.BASE_FEE,
+  networkPassphrase
+})
+  .addOperation(StellarSdk.Operation.payment({
+    destination: recipientPublicKey,
+    asset: asset,
+    amount: '1'  // Typically a symbolic amount
+  }))
+  .setTimeout(30)
+  .addMemo(StellarSdk.Memo.text('Identity Attestation'));
+
+// Sign and submit
+const sourceKeypair = StellarSdk.Keypair.fromSecret(issuerSecretKey);
+const builtTx = transaction.build();
+builtTx.sign(sourceKeypair);
+
+const result = await server.submitTransaction(builtTx);
     
     res.status(201).json({
       success: true,
