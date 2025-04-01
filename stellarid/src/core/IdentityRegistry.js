@@ -4,22 +4,11 @@
 
 const StellarSdk = require('stellar-sdk');
 const crypto = require('crypto');
-const IPFS = require('ipfs-http-client');
-
-// Configure IPFS for document storage
-const ipfs = IPFS.create({
-  host: process.env.IPFS_HOST || 'ipfs.infura.io',
-  port: process.env.IPFS_PORT || 5001,
-  protocol: process.env.IPFS_PROTOCOL || 'https'
-});
+const { server, networkPassphrase, ipfs } = require('./index');
 
 class IdentityRegistry {
   constructor(adminKeypair) {
     this.adminKeypair = adminKeypair;
-    this.server = new StellarSdk.Server(process.env.HORIZON_URL || 'https://horizon-testnet.stellar.org');
-    this.networkPassphrase = process.env.NETWORK === 'mainnet' 
-      ? StellarSdk.Networks.PUBLIC 
-      : StellarSdk.Networks.TESTNET;
   }
 
   /**
@@ -27,8 +16,45 @@ class IdentityRegistry {
    * Creates a new account that will serve as the registry
    */
   async initialize() {
-    // Implementation will go here
-    console.log('Initializing Identity Registry');
+    try {
+      // Create a new account for the registry
+      const registryAccount = StellarSdk.Keypair.random();
+      
+      // Fund the account using Friendbot (testnet only)
+      await fetch(
+        `https://friendbot.stellar.org?addr=${registryAccount.publicKey()}`
+      );
+      
+      // Create the identity token asset
+      const transaction = new StellarSdk.TransactionBuilder(
+        await server.loadAccount(this.adminKeypair.publicKey()),
+        {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase
+        }
+      )
+        .addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: new StellarSdk.Asset('IDENTITY', this.adminKeypair.publicKey()),
+            source: registryAccount.publicKey()
+          })
+        )
+        .setTimeout(30)
+        .build();
+      
+      transaction.sign(this.adminKeypair);
+      transaction.sign(registryAccount);
+      
+      await server.submitTransaction(transaction);
+      
+      return {
+        registryAccount,
+        message: 'Identity Registry initialized successfully'
+      };
+    } catch (error) {
+      console.error('Failed to initialize Identity Registry:', error);
+      throw error;
+    }
   }
 
   /**
@@ -38,11 +64,58 @@ class IdentityRegistry {
    * @returns {Object} Transaction result and identity hash
    */
   async createIdentity(userKeypair, identityData) {
-    // Implementation will go here
-    console.log('Creating identity for user', userKeypair.publicKey());
+    try {
+      // Hash the identity data to create a unique identifier
+      const identityHash = crypto
+        .createHash('sha256')
+        .update(JSON.stringify(identityData))
+        .digest('hex');
+      
+      // Store the identity data in IPFS
+      const { cid } = await ipfs.add(JSON.stringify({
+        hash: identityHash,
+        data: identityData,
+        createdAt: new Date().toISOString()
+      }));
+      
+      // Create a claimable balance on Stellar that links to the IPFS data
+      const transaction = new StellarSdk.TransactionBuilder(
+        await server.loadAccount(this.adminKeypair.publicKey()),
+        {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase
+        }
+      )
+        .addOperation(
+          StellarSdk.Operation.createClaimableBalance({
+            asset: new StellarSdk.Asset('IDENTITY', this.adminKeypair.publicKey()),
+            amount: '0.0000001',
+            claimants: [
+              {
+                destination: userKeypair.publicKey(),
+                predicate: StellarSdk.Claimant.predicateUnconditional()
+              }
+            ]
+          })
+        )
+        .addMemo(StellarSdk.Memo.text(`IPFS:${cid.toString()}`))
+        .setTimeout(30)
+        .build();
+      
+      transaction.sign(this.adminKeypair);
+      
+      const result = await server.submitTransaction(transaction);
+      
+      return {
+        result,
+        identityHash,
+        ipfsCid: cid.toString()
+      };
+    } catch (error) {
+      console.error('Failed to create identity:', error);
+      throw error;
+    }
   }
-
-  // Additional methods will be implemented here
 }
 
 module.exports = IdentityRegistry;

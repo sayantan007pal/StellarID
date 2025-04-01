@@ -1,24 +1,13 @@
 // ===============================================
-// Attestation Manager Implementation
+// Attestation Management
 // ===============================================
 
 const StellarSdk = require('stellar-sdk');
-const IPFS = require('ipfs-http-client');
-
-// Configure IPFS for document storage
-const ipfs = IPFS.create({
-  host: process.env.IPFS_HOST || 'ipfs.infura.io',
-  port: process.env.IPFS_PORT || 5001,
-  protocol: process.env.IPFS_PROTOCOL || 'https'
-});
+const { server, networkPassphrase, ipfs } = require('./index');
 
 class AttestationManager {
   constructor(adminKeypair) {
     this.adminKeypair = adminKeypair;
-    this.server = new StellarSdk.Server(process.env.HORIZON_URL || 'https://horizon-testnet.stellar.org');
-    this.networkPassphrase = process.env.NETWORK === 'mainnet' 
-      ? StellarSdk.Networks.PUBLIC 
-      : StellarSdk.Networks.TESTNET;
   }
 
   /**
@@ -28,8 +17,40 @@ class AttestationManager {
    * @returns {Object} Transaction result
    */
   async registerAttester(attesterKeypair, attesterInfo) {
-    // Implementation will go here
-    console.log('Registering attester', attesterKeypair.publicKey());
+    try {
+      // Store attester information in IPFS
+      const { cid } = await ipfs.add(JSON.stringify(attesterInfo));
+      
+      // Create a transaction that designates the account as an attester
+      const transaction = new StellarSdk.TransactionBuilder(
+        await server.loadAccount(this.adminKeypair.publicKey()),
+        {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase
+        }
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: `attester-${attesterKeypair.publicKey().substring(0, 10)}`,
+            value: cid.toString()
+          })
+        )
+        .setTimeout(30)
+        .build();
+      
+      transaction.sign(this.adminKeypair);
+      
+      const result = await server.submitTransaction(transaction);
+      
+      return {
+        result,
+        attesterPublicKey: attesterKeypair.publicKey(),
+        ipfsCid: cid.toString()
+      };
+    } catch (error) {
+      console.error('Failed to register attester:', error);
+      throw error;
+    }
   }
 
   /**
@@ -41,11 +62,47 @@ class AttestationManager {
    * @returns {Object} Transaction result
    */
   async issueAttestation(attesterKeypair, userPublicKey, identityHash, attestationData) {
-    // Implementation will go here
-    console.log('Issuing attestation for user', userPublicKey);
+    try {
+      // Store attestation data in IPFS
+      const { cid } = await ipfs.add(JSON.stringify({
+        identityHash,
+        attestationData,
+        attestedAt: new Date().toISOString(),
+        attesterPublicKey: attesterKeypair.publicKey()
+      }));
+      
+      // Create attestation record on Stellar
+      const transaction = new StellarSdk.TransactionBuilder(
+        await server.loadAccount(attesterKeypair.publicKey()),
+        {
+          fee: StellarSdk.BASE_FEE,
+          networkPassphrase
+        }
+      )
+        .addOperation(
+          StellarSdk.Operation.payment({
+            destination: userPublicKey,
+            asset: new StellarSdk.Asset('ATTEST', attesterKeypair.publicKey()),
+            amount: '0.0000001'
+          })
+        )
+        .addMemo(StellarSdk.Memo.text(`IPFS:${cid.toString()}`))
+        .setTimeout(30)
+        .build();
+      
+      transaction.sign(attesterKeypair);
+      
+      const result = await server.submitTransaction(transaction);
+      
+      return {
+        result,
+        attestationId: cid.toString()
+      };
+    } catch (error) {
+      console.error('Failed to issue attestation:', error);
+      throw error;
+    }
   }
-
-  // Additional methods will be implemented here
 }
 
 module.exports = AttestationManager;

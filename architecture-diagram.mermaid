@@ -1,0 +1,33 @@
+graph TD
+    subgraph "Frontend Layer"
+        A[Mobile App] --> B[Web Portal]
+        B --> C[Identity Management Dashboard]
+    end
+    
+    subgraph "API Layer"
+        D[Identity API] --> E[Verification API]
+        E --> F[Credential Management API]
+    end
+    
+    subgraph "Blockchain Layer"
+        G[Stellar Core] --> H[Horizon API]
+        H --> I[Smart Contracts]
+        I --> J[Custom Assets]
+    end
+    
+    subgraph "Storage Layer"
+        K[IPFS for Documents] --> L[Encrypted Storage]
+    end
+    
+    A --> D
+    B --> D
+    C --> D
+    D --> G
+    E --> G
+    F --> G
+    D --> K
+    
+    subgraph "External Services"
+        M[Attestation Partners] --> E
+        N[Financial Service Providers] --> E
+    end

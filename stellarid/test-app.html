@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StellarID Test UI</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        button { background: #0080ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 8px; margin-bottom: 8px; box-sizing: border-box; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>StellarID Test UI</h1>
+    
+    <div class="card">
+        <h2>Verify Identity</h2>
+        <input type="text" id="publicKey" placeholder="User Public Key" value="GBZXGFRCTV4QAE6LOSXAEY6U2EN4FUQA4GHBC255QB24BUTD46SRA3AK">
+        <button onclick="verifyIdentity()">Verify</button>
+        <pre id="verifyResult"></pre>
+    </div>
+    
+    <div class="card">
+        <h2>Create Identity</h2>
+        <input type="text" id="seed" placeholder="User Secret Key" value="SCDJF3DQC7TZHKYISOA7E6TXYD7EXT3QVQNL3DWOSIBWRBWYDBIYV3E2">
+        <textarea id="identityData" placeholder="Identity Data (JSON)" rows="5">
+{
+  "name": "Test User",
+  "birthYear": 1990,
+  "country": "United States",
+  "type": "basic-info"
+}
+        </textarea>
+        <button onclick="createIdentity()">Create</button>
+        <pre id="createResult"></pre>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3001';
+        
+        async function verifyIdentity() {
+            const publicKey = document.getElementById('publicKey').value;
+            const resultElement = document.getElementById('verifyResult');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/identity/verify/${publicKey}`);
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function createIdentity() {
+            const seed = document.getElementById('seed').value;
+            const identityData = JSON.parse(document.getElementById('identityData').value);
+            const resultElement = document.getElementById('createResult');
+            
+            try {
+                const response = await fetch(`${API_URL}/api/identity/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        seed,
+                        identityData
+                    })
+                });
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

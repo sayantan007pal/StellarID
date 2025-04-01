@@ -54,7 +54,7 @@ src/mobile/*.key
 src/mobile/*.mobileprovision
 src/mobile/*.orig.*
 src/mobile/web-build/
-
+stellarid/web-client/node_modules
 # Temporary files
 tmp/
 temp/
