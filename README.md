@@ -77,6 +77,7 @@ StellarID addresses the "Better Access" track by focusing on identity solutions 
 4. **Builds Trust**: Creates a network of verifiable credentials through trusted attesters
 
 ## 📦 Project Structure
+```
 stellarid/
 ├── README.md                 # Project documentation
 ├── LICENSE                   # MIT License
@@ -156,7 +157,7 @@ stellarid/
     ├── video.mp4             # Demo video
     ├── video-script.md       # Demo video script
     └── slides.pdf            # Demo presentation slides
-
+```
 ## 💻 Installation & Setup
 
 ### Prerequisites
