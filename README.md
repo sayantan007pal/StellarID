@@ -1,7 +1,9 @@
 # StellarID: Decentralized Identity for Financial Inclusion
 
 <img width="1352" alt="Screenshot 2025-04-01 at 12 05 05 PM" src="https://github.com/user-attachments/assets/a68b8d00-cf67-4a57-bc45-3117d7ffb09b" />
-<img width="1352" alt="Screenshot 2025-04-01 at 2 06 24 AM" src="https://github.com/user-attachments/assets/38a04ae8-354a-4319-a972-e7ac06a5021a" />
+<img width="1352" alt="Screenshot 2025-04-01 at 12 20 20 PM" src="https://github.com/user-attachments/assets/37c59228-df43-4085-ad40-141a694620d8" />
+<img width="1352" alt="Screenshot 2025-04-01 at 12 20 31 PM" src="https://github.com/user-attachments/assets/a2c279d8-d028-4e8f-927b-aa35aa27235b" />
+
 
 
 
