@@ -7,6 +7,13 @@ const expect = chai.expect;
 const sinon = require('sinon');
 const proxyquire = require('proxyquire').noCallThru();
 
+// Add this at the top of your tests/core.test.js file
+// Right after the imports, before the describe blocks:
+
+// Enable mock IPFS test mode explicitly
+const { setTestMode } = require('../src/utils/mock-ipfs');
+setTestMode(true);
+
 describe('StellarID Core Components', function() {
   // Set up sandbox
   const sandbox = sinon.createSandbox();

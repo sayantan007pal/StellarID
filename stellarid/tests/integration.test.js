@@ -1,5 +1,5 @@
 // ===============================================
-// Simplified Stellar Integration Tests
+// StellarID Integration Test Suite
 // ===============================================
 
 const chai = require('chai');
@@ -19,8 +19,10 @@ describe('StellarID Blockchain Integration', function() {
   let testKeypair;
   
   before(async function() {
-    // Only run integration tests when explicitly enabled
-    if (!process.env.RUN_INTEGRATION_TESTS) {
+    // Check for both RUN_INTEGRATION_TESTS and ADMIN_SECRET_KEY
+    if (!process.env.RUN_INTEGRATION_TESTS || !process.env.ADMIN_SECRET_KEY) {
+      console.log('Skipping integration tests. To run them, use:');
+      console.log('RUN_INTEGRATION_TESTS=1 ADMIN_SECRET_KEY=<your-key> npm run test:integration');
       this.skip();
       return;
     }
@@ -30,11 +32,6 @@ describe('StellarID Blockchain Integration', function() {
     try {
       // Connect to Stellar testnet
       server = new StellarSdk.Server(HORIZON_URL);
-      
-      // Load admin keypair from environment
-      if (!process.env.ADMIN_SECRET_KEY) {
-        throw new Error('ADMIN_SECRET_KEY environment variable is missing');
-      }
       
       adminKeypair = StellarSdk.Keypair.fromSecret(process.env.ADMIN_SECRET_KEY);
       console.log('Admin account:', adminKeypair.publicKey());
