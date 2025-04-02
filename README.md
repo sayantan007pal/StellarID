@@ -218,6 +218,7 @@ The project includes comprehensive test suites for all components:
 
 1. Run backend tests:
    ```
+   npm install --save-dev proxyquire
    npm run test:api
    ```
 
