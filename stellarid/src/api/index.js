@@ -69,6 +69,107 @@ const mobileAppApi = new MobileAppApi(
 // API Routes
 // ===============================================
 
+// Add this to your src/api/index.js, in the API Routes section
+
+// Home page
+app.get('/', (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>StellarID API</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        h1 {
+          color: #0066cc;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+        }
+        .endpoint {
+          background-color: #f8f9fa;
+          border-left: 3px solid #0066cc;
+          padding: 10px 15px;
+          margin-bottom: 10px;
+        }
+        .method {
+          font-weight: bold;
+          color: #28a745;
+        }
+        .path {
+          font-family: monospace;
+          font-weight: bold;
+        }
+        .description {
+          margin-top: 5px;
+          color: #666;
+        }
+        footer {
+          margin-top: 40px;
+          font-size: 0.9em;
+          color: #666;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>StellarID API Server</h1>
+      
+      <p>Welcome to the StellarID API server. This API provides endpoints for managing decentralized identities on the Stellar blockchain.</p>
+      
+      <h2>Available Endpoints</h2>
+      
+      <div class="endpoint">
+        <div><span class="method">GET</span> <span class="path">/health</span></div>
+        <div class="description">Health check endpoint to verify the API server is running.</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">POST</span> <span class="path">/api/identity/create</span></div>
+        <div class="description">Create a new identity on the Stellar blockchain.</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">GET</span> <span class="path">/api/identity/verify/:userPublicKey</span></div>
+        <div class="description">Verify a user's identity and get their attestations.</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">POST</span> <span class="path">/api/attestation/request</span></div>
+        <div class="description">Request a new attestation from a registered attester.</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">POST</span> <span class="path">/api/attestation/issue</span></div>
+        <div class="description">Issue an attestation for a user's identity (attester only).</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">POST</span> <span class="path">/api/attester/register</span></div>
+        <div class="description">Register a new attester on the platform.</div>
+      </div>
+      
+      <div class="endpoint">
+        <div><span class="method">GET</span> <span class="path">/api/attester/pending-requests</span></div>
+        <div class="description">Get a list of pending attestation requests for an attester.</div>
+      </div>
+      
+      <footer>
+        StellarID - Decentralized Identity for Financial Inclusion
+      </footer>
+    </body>
+    </html>
+  `);
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
@@ -197,6 +298,7 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'production' ? undefined : err.message
   });
 });
+// Update this section in your src/api/index.js
 
 // ===============================================
 // Server Initialization
@@ -206,19 +308,25 @@ const PORT = process.env.PORT || 3000;
 
 // Start the server only if not in test mode
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, async () => {
-    console.log(`StellarID API server running on port ${PORT}`);
-    
-    // Initialize the identity registry if needed
-    // Uncomment this if you want to automatically initialize the registry on startup
-    // console.log('Initializing StellarID system...');
-    // try {
-    //   const result = await identityRegistry.initialize();
-    //   console.log('Identity registry initialized:', result);
-    // } catch (error) {
-    //   console.error('Failed to initialize system:', error);
-    // }
-  });
+  // Try to start server, handle port in use errors gracefully
+  const startServer = (port) => {
+    const server = app.listen(port)
+      .on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          console.log(`Port ${port} is already in use, trying port ${port + 1}...`);
+          startServer(port + 1);
+        } else {
+          console.error('Failed to start server:', err);
+          process.exit(1);
+        }
+      })
+      .on('listening', () => {
+        const address = server.address();
+        console.log(`StellarID API server running on port ${address.port}`);
+      });
+  };
+  
+  startServer(PORT);
 }
 
 module.exports = app;
