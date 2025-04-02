@@ -191,13 +191,17 @@ stellarid/
    ```
    npm run deploy:testnet
    ```
+5. Run all tests:
+   ```
+   NODE_ENV=test npm test
+   ```
 
-5. Start the API server:
+6. Start the API server:
    ```
    npm run dev
    ```
 
-6. Run the web app:
+7. Run the web app:
 
    ```
    cd stellarid/web-client
@@ -229,14 +233,27 @@ The project includes comprehensive test suites for all components:
 3. Run backend integration tests:
    ```
    npm install --save-dev proxyquire
+   ```
+   ```
    ADMIN_SECRET_KEY=get from stellarid/deploy/.env
+   ```
+   ```
    RUN_INTEGRATION_TESTS=1 npm run test:integration
-
-   npm install helia @helia/unixfs uint8arrays
-   npm run test:integration
-
    ```
 
+   ```
+  StellarID Blockchain Integration
+  Skipping integration tests. To run them, use:
+  
+  ```
+  RUN_INTEGRATION_TESTS=1 ADMIN_SECRET_KEY=<your-key> npm run test:integration
+
+   ```
+Stellar Account Operations
+      - should be able to create and fund a Stellar account
+      - should be able to add a data entry to an account
+      - should be able to make a payment between accounts
+      - should be able to add a memo to a transaction
 
 2. Run smart contract tests:
    ```
