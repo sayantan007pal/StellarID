@@ -216,11 +216,27 @@ stellarid/
 
 The project includes comprehensive test suites for all components:
 
-1. Run backend tests:
+1. Run backend core tests:
    ```
    npm install --save-dev proxyquire
+   npm run test:core
+   ```
+2. Run backend api tests:
+   ```
+   npm install --save-dev supertest
    npm run test:api
    ```
+3. Run backend integration tests:
+   ```
+   npm install --save-dev proxyquire
+   ADMIN_SECRET_KEY=get from stellarid/deploy/.env
+   RUN_INTEGRATION_TESTS=1 npm run test:integration
+
+   npm install helia @helia/unixfs uint8arrays
+   npm run test:integration
+
+   ```
+
 
 2. Run smart contract tests:
    ```
