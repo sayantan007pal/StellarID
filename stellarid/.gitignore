@@ -27,8 +27,8 @@ pids
 *.pid.lock
 
 # Deployment configs
-deploy/config/*.json
-!deploy/config/example.json
+
+
 
 # Testing
 coverage/
